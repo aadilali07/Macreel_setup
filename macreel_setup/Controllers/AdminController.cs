@@ -1,0 +1,848 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+using System.Web.Mvc;
+using System.Data;
+using System.Data.SqlClient;
+using macreel_setup.Models;
+
+namespace macreel_setup.Controllers
+{
+    public class AdminController : Controller
+    {
+        public ActionResult Login()
+        {
+            return View();
+        }
+
+        #region checklogin
+
+        [HttpPost]
+        public JsonResult admin_Login(string username, string password, string url)
+        {
+
+            macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+
+
+            Models.common_response Response = basic_function.login(username, password);
+            if (Response.success == true)
+            {
+                if (url != null && url.ToString() != "")
+                {
+                    Response.message = (HttpUtility.HtmlDecode(url));
+                }
+                else
+                {
+                    Response.message = "/admin/Dasboard";
+                }
+                Session["adminname"] = Response.parameter.ToString();
+
+            }
+            return Json(Response);
+        }
+
+        #endregion
+
+        #region  admin info
+        //[ChildActionOnly]
+        //public ActionResult topbar()
+        //{
+        //    macreel_setup.App_Code.Admin.basic_function basic_function = new macreel_setup.App_Code.Admin.basic_function();
+        //    macreel_setup.Models.admininfo admininfo = new macreel_setup.Models.admininfo();
+        //    string agencyid = "";
+        //    if (Session["adminname"] != null && Session["adminname"].ToString() != "")
+        //    {
+        //        agencyid = Session["adminname"].ToString();
+        //    }
+
+        //    admininfo = basic_function.admininfo(agencyid);
+        //    return PartialView(admininfo);
+
+        //}
+        #endregion
+
+
+        #region logout
+
+        public ActionResult logout()
+        {
+            if (Session["adminname"] != null)
+            {
+                Session["adminname"] = null;
+                Session["data_con"] = null;
+            }
+
+            return RedirectToAction("login");
+        }
+        #endregion
+
+        public ActionResult Dasboard()
+        {
+            macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            if (basic_function.adminssioncheck("") == false)
+            {
+                string url = Request.Url.PathAndQuery;
+                return Redirect("/admin/login?url=" + HttpUtility.UrlEncode(url) + "");
+            }
+            return View();
+        }
+
+
+        #region employee management field
+        public ActionResult employee_management(string id)
+        {
+            //macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            //if (basic_function.adminssioncheck("") == false)
+            //{
+            //    string url = Request.Url.PathAndQuery;    
+            //    return Redirect("/admin/login?url=" + HttpUtility.UrlEncode(url) + "");
+            //}
+
+            macreel_setup.Models.admin.employee_manage employee_manage = new macreel_setup.Models.admin.employee_manage();
+            List<macreel_setup.Models.admin.manage_branch> manage_branch = new List<macreel_setup.Models.admin.manage_branch>();
+            List<macreel_setup.Models.admin.reportingTL_list> reportingTL_list = new List<macreel_setup.Models.admin.reportingTL_list>();
+            List<macreel_setup.Models.admin.reporting_manger_list> reporting_manger_list = new List<macreel_setup.Models.admin.reporting_manger_list>();
+
+
+
+            string str = "select * from manage_branch      select * from employee_management where employee_designation = 'Team Leader'    select * from employee_management where employee_designation = 'Management' ";
+            DataSet ds = SqlHelper.ExecuteDataset(CommandType.Text, str);
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    manage_branch.Add(new macreel_setup.Models.admin.manage_branch()
+                    {
+                        BranchName = dr["BranchName"].ToString(),
+                        id = dr["id"].ToString()
+                    });
+                }
+            }
+
+            if (ds.Tables[1].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[1].Rows)
+                {
+                    reportingTL_list.Add(new macreel_setup.Models.admin.reportingTL_list()
+                    {
+                        name = dr["employee_first_name"].ToString() + dr["employee_last_name"].ToString(),
+                        employee_id = dr["employee_id"].ToString()
+                    });
+                }
+            }
+
+            if (ds.Tables[2].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[2].Rows)
+                {
+                    reporting_manger_list.Add(new macreel_setup.Models.admin.reporting_manger_list()
+                    {
+                        name = dr["employee_first_name"].ToString() + dr["employee_last_name"].ToString(),
+                        employee_id = dr["employee_id"].ToString()
+                    });
+                }
+            }
+
+            employee_manage.manage_branch = manage_branch;
+            employee_manage.reportingTL_list = reportingTL_list;
+            employee_manage.reporting_manger_list = reporting_manger_list;
+
+
+            if (id != null && id.ToString() != "")
+            {
+                string strr = "select * from employee_management where id='" + id + "'";
+                DataTable dt = SqlHelper.ExecuteDataset(CommandType.Text, strr).Tables[0];
+                if (dt.Rows.Count > 0)
+                {
+                    employee_manage.id = dt.Rows[0]["id"].ToString();
+                    employee_manage.employee_branch = dt.Rows[0]["employee_branch"].ToString();
+                    employee_manage.employee_type = dt.Rows[0]["employee_type"].ToString();
+                    employee_manage.employee_designation = dt.Rows[0]["employee_designation"].ToString();
+                    employee_manage.employee_id = dt.Rows[0]["employee_id"].ToString();
+                    employee_manage.login_userid = dt.Rows[0]["login_userid"].ToString();
+                    employee_manage.password = dt.Rows[0]["password"].ToString();
+                    employee_manage.employee_first_name = dt.Rows[0]["employee_first_name"].ToString();
+                    employee_manage.employee_last_name = dt.Rows[0]["employee_last_name"].ToString();
+                    employee_manage.mobile_no = dt.Rows[0]["mobile_no"].ToString();
+                    employee_manage.phone_no = dt.Rows[0]["phone_no"].ToString();
+                    employee_manage.gender = dt.Rows[0]["gender"].ToString();
+                    employee_manage.alternate_number = dt.Rows[0]["alternate_number"].ToString();
+                    employee_manage.dob = dt.Rows[0]["dob"].ToString();
+                    employee_manage.join_date = dt.Rows[0]["join_date"].ToString();
+                    employee_manage.salary_ctc = dt.Rows[0]["salary_ctc"].ToString();
+                    employee_manage.qualification = dt.Rows[0]["qualification"].ToString();
+                    employee_manage.aadhar_no = dt.Rows[0]["aadhar_no"].ToString();
+                    employee_manage.pan_no = dt.Rows[0]["pan_no"].ToString();
+                    employee_manage.profile_picture = dt.Rows[0]["profile_picture"].ToString();
+                    employee_manage.country = dt.Rows[0]["country"].ToString();
+                    employee_manage.state = dt.Rows[0]["state"].ToString();
+                    employee_manage.city = dt.Rows[0]["city"].ToString();
+                    employee_manage.area_code = dt.Rows[0]["area_code"].ToString();
+                    employee_manage.address = dt.Rows[0]["address"].ToString();
+                    employee_manage.employee_department = dt.Rows[0]["employee_department"].ToString();
+                    employee_manage.reporting_manager = dt.Rows[0]["reporting_manager"].ToString();
+                    employee_manage.reporting_tl = dt.Rows[0]["reporting_tl"].ToString();
+                    employee_manage.exit_date = dt.Rows[0]["exit_date"].ToString();
+                    employee_manage.current_status = dt.Rows[0]["current_status"].ToString();
+
+                }
+            }
+
+
+
+            return View(employee_manage);
+
+        }
+
+        [HttpPost]
+        public ActionResult insert_employee(macreel_setup.Models.admin.employee_manage employee_manage)
+        {
+
+            var path = System.IO.Path.Combine(Server.MapPath("~/tempimage/"));
+
+
+            HttpPostedFileBase file1 = Request.Files["fileupload"];
+
+            string img1 = "";
+
+            string uploadpayslipss;
+
+            if (employee_manage.profile_picture != null && employee_manage.profile_picture != "")
+            {
+                img1 = employee_manage.profile_picture;
+            }
+
+            if (file1 != null && file1.FileName.ToString() != "")
+            {
+                uploadpayslipss = DateTime.Now.ToString("ssMMHHmmyyyydd") + System.Guid.NewGuid() + "." + file1.FileName.Split('.')[1];
+                file1.SaveAs(path + uploadpayslipss);
+                img1 = uploadpayslipss;
+
+            }
+
+            SqlParameter[] para = new SqlParameter[30];
+
+            para[0] = new SqlParameter("@employee_branch", SqlDbType.NVarChar);
+            para[0].Value = employee_manage.employee_branch;
+
+            para[1] = new SqlParameter("@employee_type", SqlDbType.NVarChar);
+            para[1].Value = employee_manage.employee_type;
+
+            para[2] = new SqlParameter("@employee_designation", SqlDbType.NVarChar);
+            para[2].Value = employee_manage.employee_designation;
+
+            para[3] = new SqlParameter("@employee_id", SqlDbType.NVarChar);
+            para[3].Value = employee_manage.employee_id;
+
+            para[4] = new SqlParameter("@login_userid", SqlDbType.NVarChar);
+            para[4].Value = employee_manage.login_userid;
+
+            para[5] = new SqlParameter("@password", SqlDbType.NVarChar);
+            para[5].Value = employee_manage.password;
+
+            para[6] = new SqlParameter("@employee_first_name", SqlDbType.NVarChar);
+            para[6].Value = employee_manage.employee_first_name;
+
+            para[7] = new SqlParameter("@employee_last_name", SqlDbType.NVarChar);
+            para[7].Value = employee_manage.employee_last_name;
+
+            para[8] = new SqlParameter("@mobile_no", SqlDbType.NVarChar);
+            para[8].Value = employee_manage.mobile_no;
+
+            para[9] = new SqlParameter("@phone_no", SqlDbType.NVarChar);
+            para[9].Value = employee_manage.phone_no;
+
+            para[10] = new SqlParameter("@gender", SqlDbType.NVarChar);
+            para[10].Value = employee_manage.gender;
+
+            para[11] = new SqlParameter("@alternate_number", SqlDbType.NVarChar);
+            para[11].Value = employee_manage.alternate_number;
+
+            para[12] = new SqlParameter("@dob", SqlDbType.NVarChar);
+            para[12].Value = employee_manage.dob;
+
+            para[13] = new SqlParameter("@join_date", SqlDbType.NVarChar);
+            para[13].Value = employee_manage.join_date;
+
+            para[14] = new SqlParameter("@salary_ctc", SqlDbType.NVarChar);
+            para[14].Value = employee_manage.salary_ctc;
+
+            para[15] = new SqlParameter("@qualification", SqlDbType.NVarChar);
+            para[15].Value = employee_manage.qualification;
+
+            para[16] = new SqlParameter("@aadhar_no", SqlDbType.NVarChar);
+            para[16].Value = employee_manage.aadhar_no;
+
+            para[17] = new SqlParameter("@pan_no", SqlDbType.NVarChar);
+            para[17].Value = employee_manage.pan_no;
+
+            para[18] = new SqlParameter("@profile_picture", SqlDbType.NVarChar);
+            para[18].Value = img1;
+
+            para[19] = new SqlParameter("@country", SqlDbType.NVarChar);
+            para[19].Value = employee_manage.country;
+
+            para[20] = new SqlParameter("@state", SqlDbType.NVarChar);
+            para[20].Value = employee_manage.state;
+
+            para[21] = new SqlParameter("@city", SqlDbType.NVarChar);
+            para[21].Value = employee_manage.city;
+
+            para[22] = new SqlParameter("@area_code", SqlDbType.NVarChar);
+            para[22].Value = employee_manage.area_code;
+
+            para[23] = new SqlParameter("@address", SqlDbType.NVarChar);
+            para[23].Value = employee_manage.address;
+
+            para[24] = new SqlParameter("@employee_department", SqlDbType.NVarChar);
+            para[24].Value = employee_manage.employee_department;
+
+            para[25] = new SqlParameter("@reporting_manager", SqlDbType.NVarChar);
+            para[25].Value = employee_manage.reporting_manager;
+
+            para[26] = new SqlParameter("@reporting_tl", SqlDbType.NVarChar);
+            para[26].Value = employee_manage.reporting_tl;
+
+            para[27] = new SqlParameter("@exit_date", SqlDbType.NVarChar);
+            para[27].Value = employee_manage.exit_date;
+
+            para[28] = new SqlParameter("@current_status", SqlDbType.NVarChar);
+            para[28].Value = employee_manage.current_status;
+
+            para[29] = new SqlParameter("@id", SqlDbType.NVarChar);
+            para[29].Value = employee_manage.id;
+
+
+            SqlHelper.ExecuteNonQuery(CommandType.StoredProcedure, "sp_UpdateInsertEmployee", para);
+            TempData["Message"] = "Your Employee Updated Successfully";
+            TempData["para"] = true;
+
+
+            //catch
+            //{
+            //    TempData["para"] = false;
+            //    TempData["Message"] = "Error, Call Your Administritive !";
+            //}
+
+            return RedirectToAction("employee_management");
+        }
+
+        public ActionResult view_employee()
+        {
+            List<macreel_setup.Models.admin.employee_manage> employee_manage = new List<macreel_setup.Models.admin.employee_manage>();
+
+            string sql = "select * from employee_management order by id";
+
+            DataTable dtr = SqlHelper.ExecuteDataset(CommandType.Text, sql).Tables[0];
+            if (dtr.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtr.Rows)
+                {
+                    employee_manage.Add(new macreel_setup.Models.admin.employee_manage()
+                    {
+                        employee_branch = dr["employee_branch"].ToString(),
+                        employee_type = dr["employee_type"].ToString(),
+                        employee_designation = dr["employee_designation"].ToString(),
+                        employee_id = dr["employee_id"].ToString(),
+                        login_userid = dr["login_userid"].ToString(),
+                        password = dr["password"].ToString(),
+                        employee_first_name = dr["employee_first_name"].ToString(),
+                        employee_last_name = dr["employee_last_name"].ToString(),
+                        mobile_no = dr["mobile_no"].ToString(),
+                        phone_no = dr["phone_no"].ToString(),
+                        gender = dr["gender"].ToString(),
+                        alternate_number = dr["alternate_number"].ToString(),
+                        dob = dr["dob"].ToString(),
+                        join_date = dr["join_date"].ToString(),
+                        salary_ctc = dr["salary_ctc"].ToString(),
+                        qualification = dr["qualification"].ToString(),
+                        aadhar_no = dr["aadhar_no"].ToString(),
+                        pan_no = dr["pan_no"].ToString(),
+                        profile_picture = dr["profile_picture"].ToString(),
+                        country = dr["country"].ToString(),
+                        state = dr["state"].ToString(),
+                        city = dr["city"].ToString(),
+                        area_code = dr["area_code"].ToString(),
+                        address = dr["address"].ToString(),
+                        employee_department = dr["employee_department"].ToString(),
+                        reporting_manager = dr["reporting_manager"].ToString(),
+                        reporting_tl = dr["reporting_tl"].ToString(),
+                        exit_date = dr["exit_date"].ToString(),
+                        current_status = dr["current_status"].ToString(),
+                        id = dr["id"].ToString(),
+
+                    });
+                }
+            }
+
+            return View(employee_manage);
+        }
+
+        public ActionResult delet_employee(string id)
+        {
+            string str = "delete from employee_management where id='" + id + "'";
+
+            SqlHelper.ExecuteNonQuery(CommandType.Text, str);
+
+            return RedirectToAction("view_employee");
+        }
+
+
+        #endregion
+
+
+        #region lead management field
+        public ActionResult lead_management(string id)
+        {
+            //macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            //if (basic_function.adminssioncheck("") == false)
+            //{
+            //    string url = Request.Url.PathAndQuery;
+            //    return Redirect("/admin/login?url=" + HttpUtility.UrlEncode(url) + "");
+            //}
+
+            macreel_setup.Models.admin.lead_mangement lead_mangement = new macreel_setup.Models.admin.lead_mangement();
+            List<macreel_setup.Models.admin.employe_list> employe_list = new List<macreel_setup.Models.admin.employe_list>();
+
+
+
+            string str = "select * from employee_management ";
+            DataSet ds = SqlHelper.ExecuteDataset(CommandType.Text, str);
+
+
+            if (ds.Tables[0].Rows.Count > 0)
+            {
+                foreach (DataRow dr in ds.Tables[0].Rows)
+                {
+                    employe_list.Add(new macreel_setup.Models.admin.employe_list()
+                    {
+                        name = dr["employee_first_name"].ToString() + dr["employee_last_name"].ToString(),
+                        employee_id = dr["employee_id"].ToString()
+                    });
+                }
+            }
+
+            lead_mangement.employe_list = employe_list;
+
+
+            if (id != null && id.ToString() != "")
+            {
+                string strr = "select * from LeadTable where id='" + id + "'";
+                DataTable dt = SqlHelper.ExecuteDataset(CommandType.Text, strr).Tables[0];
+                if (dt.Rows.Count > 0)
+                {
+                    lead_mangement.id = dt.Rows[0]["id"].ToString();
+                    lead_mangement.LeadID = dt.Rows[0]["LeadID"].ToString();
+                    lead_mangement.LeadSegment = dt.Rows[0]["LeadSegment"].ToString();
+                    lead_mangement.Branch = dt.Rows[0]["Branch"].ToString();
+                    lead_mangement.Client = dt.Rows[0]["Client"].ToString();
+                    lead_mangement.ContactPerson = dt.Rows[0]["ContactPerson"].ToString();
+                    lead_mangement.ContactDesignation = dt.Rows[0]["ContactDesignation"].ToString();
+                    lead_mangement.ContactEmail = dt.Rows[0]["ContactEmail"].ToString();
+                    lead_mangement.ContactMobileNumber = dt.Rows[0]["ContactMobileNumber"].ToString();
+                    lead_mangement.Address = dt.Rows[0]["Address"].ToString();
+                    lead_mangement.Telephone = dt.Rows[0]["Telephone"].ToString();
+                    lead_mangement.City = dt.Rows[0]["City"].ToString();
+                    lead_mangement.PIN = dt.Rows[0]["PIN"].ToString();
+                    lead_mangement.State = dt.Rows[0]["State"].ToString();
+                    lead_mangement.Country = dt.Rows[0]["Country"].ToString();
+                    lead_mangement.ClientSegment = dt.Rows[0]["ClientSegment"].ToString();
+                    lead_mangement.ClientTurnover = dt.Rows[0]["ClientTurnover"].ToString();
+                    lead_mangement.ClientPCsOrNoOfEmployee = dt.Rows[0]["ClientPCsOrNoOfEmployee"].ToString();
+                    lead_mangement.ExpectedAnnualBusiness = dt.Rows[0]["ExpectedAnnualBusiness"].ToString();
+                    lead_mangement.ProductRequired = dt.Rows[0]["ProductRequired"].ToString();
+                    lead_mangement.ProductDescription = dt.Rows[0]["ProductDescription"].ToString();
+                    lead_mangement.ProductQuantity = dt.Rows[0]["ProductQuantity"].ToString();
+                    lead_mangement.ServiceRequired = dt.Rows[0]["ServiceRequired"].ToString();
+                    lead_mangement.ServicesDescription = dt.Rows[0]["ServicesDescription"].ToString();
+                    lead_mangement.EstimatedLeadValue = dt.Rows[0]["EstimatedLeadValue"].ToString();
+                    lead_mangement.LeadGeneratedBy = dt.Rows[0]["LeadGeneratedBy"].ToString();
+                    lead_mangement.LeadGeneratedByType = dt.Rows[0]["LeadGeneratedByType"].ToString();
+                    lead_mangement.LeadGenerationDate = dt.Rows[0]["LeadGenerationDate"].ToString();
+                    lead_mangement.LeadAssignedTo = dt.Rows[0]["LeadAssignedTo"].ToString();
+                    lead_mangement.LeadStatus = dt.Rows[0]["LeadStatus"].ToString();
+
+                }
+            }
+
+            return View(lead_mangement);
+
+        }
+
+        [HttpPost]
+        public ActionResult insert_lead(macreel_setup.Models.admin.lead_mangement lead_mangement)
+        {
+
+
+            SqlParameter[] para = new SqlParameter[30];
+
+            para[0] = new SqlParameter("@LeadID", SqlDbType.NVarChar);
+            para[0].Value = lead_mangement.LeadID;
+
+            para[1] = new SqlParameter("@LeadSegment", SqlDbType.NVarChar);
+            para[1].Value = lead_mangement.LeadSegment;
+
+            para[2] = new SqlParameter("@Branch", SqlDbType.NVarChar);
+            para[2].Value = lead_mangement.Branch;
+
+            para[3] = new SqlParameter("@Client", SqlDbType.NVarChar);
+            para[3].Value = lead_mangement.Client;
+
+            para[4] = new SqlParameter("@ContactPerson", SqlDbType.NVarChar);
+            para[4].Value = lead_mangement.ContactPerson;
+
+            para[5] = new SqlParameter("@ContactDesignation", SqlDbType.NVarChar);
+            para[5].Value = lead_mangement.ContactDesignation;
+
+            para[6] = new SqlParameter("@ContactEmail", SqlDbType.NVarChar);
+            para[6].Value = lead_mangement.ContactEmail;
+
+            para[7] = new SqlParameter("@ContactMobileNumber", SqlDbType.NVarChar);
+            para[7].Value = lead_mangement.ContactMobileNumber;
+
+            para[8] = new SqlParameter("@Address", SqlDbType.NText);
+            para[8].Value = lead_mangement.Address;
+
+            para[9] = new SqlParameter("@Telephone", SqlDbType.NVarChar);
+            para[9].Value = lead_mangement.Telephone;
+
+            para[10] = new SqlParameter("@City", SqlDbType.NVarChar);
+            para[10].Value = lead_mangement.City;
+
+            para[11] = new SqlParameter("@PIN", SqlDbType.NVarChar);
+            para[11].Value = lead_mangement.PIN;
+
+            para[12] = new SqlParameter("@State", SqlDbType.NVarChar);
+            para[12].Value = lead_mangement.State;
+
+            para[13] = new SqlParameter("@Country", SqlDbType.NVarChar);
+            para[13].Value = lead_mangement.Country;
+
+            para[14] = new SqlParameter("@ClientSegment", SqlDbType.NVarChar);
+            para[14].Value = lead_mangement.ClientSegment;
+
+            para[15] = new SqlParameter("@ClientTurnover", SqlDbType.NVarChar);
+            para[15].Value = lead_mangement.ClientTurnover;
+
+            para[16] = new SqlParameter("@ClientPCsOrNoOfEmployee", SqlDbType.NVarChar);
+            para[16].Value = lead_mangement.ClientPCsOrNoOfEmployee;
+
+            para[17] = new SqlParameter("@ExpectedAnnualBusiness", SqlDbType.NVarChar);
+            para[17].Value = lead_mangement.ExpectedAnnualBusiness;
+
+            para[18] = new SqlParameter("@ProductRequired", SqlDbType.NVarChar);
+            para[18].Value = lead_mangement.ProductRequired;
+
+            para[19] = new SqlParameter("@ProductDescription", SqlDbType.NText);
+            para[19].Value = lead_mangement.ProductDescription;
+
+            para[20] = new SqlParameter("@ProductQuantity", SqlDbType.NVarChar);
+            para[20].Value = lead_mangement.ProductQuantity;
+
+            para[21] = new SqlParameter("@ServiceRequired", SqlDbType.NVarChar);
+            para[21].Value = lead_mangement.ServiceRequired;
+
+            para[22] = new SqlParameter("@ServicesDescription", SqlDbType.NText);
+            para[22].Value = lead_mangement.ServicesDescription;
+
+            para[23] = new SqlParameter("@EstimatedLeadValue", SqlDbType.NVarChar);
+            para[23].Value = lead_mangement.EstimatedLeadValue;
+
+            para[24] = new SqlParameter("@LeadGeneratedBy", SqlDbType.NVarChar);
+            para[24].Value = lead_mangement.LeadGeneratedBy;
+
+            para[25] = new SqlParameter("@LeadGeneratedByType", SqlDbType.NVarChar);
+            para[25].Value = lead_mangement.LeadGeneratedByType;
+
+            para[26] = new SqlParameter("@LeadGenerationDate", SqlDbType.NVarChar);
+            para[26].Value = lead_mangement.LeadGenerationDate;
+
+            para[27] = new SqlParameter("@LeadAssignedTo", SqlDbType.NVarChar);
+            para[27].Value = lead_mangement.LeadAssignedTo;
+
+            para[28] = new SqlParameter("@LeadStatus", SqlDbType.NVarChar);
+            para[28].Value = lead_mangement.LeadStatus;
+
+            para[29] = new SqlParameter("@id", SqlDbType.NVarChar);
+            para[29].Value = lead_mangement.id;
+
+
+
+            SqlHelper.ExecuteNonQuery(CommandType.StoredProcedure, "sp_InsertOrUpdateLead", para);
+            TempData["Message"] = "Your Company Setup Updated Successfully";
+            TempData["para"] = true;
+
+
+            //}
+            //catch
+            //{
+            //    TempData["para"] = false;
+            //    TempData["Message"] = "Error, Call Your Administritive !";
+            //}
+
+            return RedirectToAction("lead_management");
+        }
+
+        public ActionResult view_lead()
+        {
+            List<macreel_setup.Models.admin.lead_mangement> lead_mangement = new List<macreel_setup.Models.admin.lead_mangement>();
+
+            string sql = "select * from LeadTable order by id";
+
+            DataTable dtr = SqlHelper.ExecuteDataset(CommandType.Text, sql).Tables[0];
+            if (dtr.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtr.Rows)
+                {
+                    lead_mangement.Add(new macreel_setup.Models.admin.lead_mangement()
+                    {
+                        LeadID = dr["LeadID"].ToString(),
+                        LeadSegment = dr["LeadSegment"].ToString(),
+                        Branch = dr["Branch"].ToString(),
+                        Client = dr["Client"].ToString(),
+                        ContactPerson = dr["ContactPerson"].ToString(),
+                        ContactDesignation = dr["ContactDesignation"].ToString(),
+                        ContactEmail = dr["ContactEmail"].ToString(),
+                        ContactMobileNumber = dr["ContactMobileNumber"].ToString(),
+                        Address = dr["Address"].ToString(),
+                        Telephone = dr["Telephone"].ToString(),
+                        City = dr["City"].ToString(),
+                        PIN = dr["PIN"].ToString(),
+                        State = dr["State"].ToString(),
+                        Country = dr["Country"].ToString(),
+                        ClientSegment = dr["ClientSegment"].ToString(),
+                        ClientTurnover = dr["ClientTurnover"].ToString(),
+                        ClientPCsOrNoOfEmployee = dr["ClientPCsOrNoOfEmployee"].ToString(),
+                        ExpectedAnnualBusiness = dr["ExpectedAnnualBusiness"].ToString(),
+                        ProductRequired = dr["ProductRequired"].ToString(),
+                        ProductDescription = dr["ProductDescription"].ToString(),
+                        ProductQuantity = dr["ProductQuantity"].ToString(),
+                        ServiceRequired = dr["ServiceRequired"].ToString(),
+                        ServicesDescription = dr["ServicesDescription"].ToString(),
+                        EstimatedLeadValue = dr["EstimatedLeadValue"].ToString(),
+                        LeadGeneratedBy = dr["LeadGeneratedBy"].ToString(),
+                        LeadGeneratedByType = dr["LeadGeneratedByType"].ToString(),
+                        LeadGenerationDate = dr["LeadGenerationDate"].ToString(),
+                        LeadAssignedTo = dr["LeadAssignedTo"].ToString(),
+                        LeadStatus = dr["LeadStatus"].ToString(),
+                        id = dr["id"].ToString(),
+
+                    });
+                }
+            }
+
+            return View(lead_mangement);
+        }
+
+        public ActionResult delet_lead(string id)
+        {
+            string str = "delete from LeadTable where id='" + id + "'";
+
+            SqlHelper.ExecuteNonQuery(CommandType.Text, str);
+
+            return RedirectToAction("view_product");
+        }
+
+
+        #endregion
+
+
+        #region Manage Branch
+
+        public ActionResult branch_management(string id)
+        {
+            //macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            //if (basic_function.adminssioncheck("") == false)
+            //{
+            //    string url = Request.Url.PathAndQuery;
+            //    return Redirect("/admin/login?url=" + HttpUtility.UrlEncode(url) + "");
+            //}
+
+            macreel_setup.Models.admin.manage_branch manage_branch = new macreel_setup.Models.admin.manage_branch();
+
+           
+            if (id != null && id.ToString() != "")
+            {
+                string strr = "select * from manage_branch where id='" + id + "'";
+                DataTable dt = SqlHelper.ExecuteDataset(CommandType.Text, strr).Tables[0];
+                if (dt.Rows.Count > 0)
+                {
+                    manage_branch.id = dt.Rows[0]["id"].ToString();
+                    manage_branch.BranchName = dt.Rows[0]["BranchName"].ToString();
+                    manage_branch.BranchEmail = dt.Rows[0]["BranchEmail"].ToString();
+                    manage_branch.ContactPerson = dt.Rows[0]["ContactPerson"].ToString();
+                    manage_branch.LandLineNo = dt.Rows[0]["LandLineNo"].ToString();
+                    manage_branch.ContactPersonMobile = dt.Rows[0]["ContactPersonMobile"].ToString();
+                    manage_branch.ContactPersonEmail = dt.Rows[0]["ContactPersonEmail"].ToString();
+                    manage_branch.GSTNo = dt.Rows[0]["GSTNo"].ToString();
+                    manage_branch.PanNo = dt.Rows[0]["PanNo"].ToString();
+                    manage_branch.BranchRegistrationNo = dt.Rows[0]["BranchRegistrationNo"].ToString();
+                    manage_branch.StateName = dt.Rows[0]["StateName"].ToString();
+                    manage_branch.StateCode = dt.Rows[0]["StateCode"].ToString();
+                    manage_branch.CityName = dt.Rows[0]["CityName"].ToString();
+                    manage_branch.CityCode = dt.Rows[0]["CityCode"].ToString();
+                    manage_branch.PinCode = dt.Rows[0]["PinCode"].ToString();
+                    manage_branch.RegistrationDate = dt.Rows[0]["RegistrationDate"].ToString();
+                    manage_branch.BranchAddress = dt.Rows[0]["BranchAddress"].ToString();
+
+                }
+            }
+
+
+            return View(manage_branch);
+
+        }
+
+        [HttpPost]
+        public ActionResult insert_branch(macreel_setup.Models.admin.manage_branch manage_branch)
+        {
+            macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            
+            Models.common_response Response = basic_function.manage_branch(manage_branch);
+
+
+
+            return RedirectToAction("branch_management");
+        }
+
+        public ActionResult view_branch()
+        {
+            List<macreel_setup.Models.admin.manage_branch> manage_branch = new List<macreel_setup.Models.admin.manage_branch>();
+
+            string sql = "select * from manage_branch order by id";
+
+            DataTable dtr = SqlHelper.ExecuteDataset(CommandType.Text, sql).Tables[0];
+            if (dtr.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtr.Rows)
+                {
+                    manage_branch.Add(new macreel_setup.Models.admin.manage_branch()
+                    {
+                        BranchName = dr["BranchName"].ToString(),
+                        LandLineNo = dr["LandLineNo"].ToString(),
+                        CityName = dr["CityName"].ToString(),
+                        ContactPerson = dr["ContactPerson"].ToString(),
+                        ContactPersonMobile = dr["ContactPersonMobile"].ToString(),
+                        id = dr["id"].ToString(),
+
+                    });
+                }
+            }
+
+            return View(manage_branch);
+        }
+
+        public ActionResult delet_branch(string id)
+        {
+            string str = "delete from manage_branch where id='" + id + "'";
+
+            SqlHelper.ExecuteNonQuery(CommandType.Text, str);
+
+            return RedirectToAction("view_branch");
+        }
+
+
+        #endregion
+
+
+        #region Manage Leave Distribution Employee
+
+        public ActionResult manage_leave(string id)
+        {
+            //macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+            //if (basic_function.adminssioncheck("") == false)
+            //{
+            //    string url = Request.Url.PathAndQuery;
+            //    return Redirect("/admin/login?url=" + HttpUtility.UrlEncode(url) + "");
+            //}
+
+            macreel_setup.Models.admin.manage_leave manage_leave = new macreel_setup.Models.admin.manage_leave();
+
+
+            if (id != null && id.ToString() != "")
+            {
+                string strr = "select * from manage_leave where id='" + id + "'";
+                DataTable dt = SqlHelper.ExecuteDataset(CommandType.Text, strr).Tables[0];
+                if (dt.Rows.Count > 0)
+                {
+                    manage_leave.id = Convert.ToInt32(dt.Rows[0]["id"].ToString());
+                    manage_leave.Employeeid = dt.Rows[0]["Employeeid"].ToString();
+                    manage_leave.EmployeeType = dt.Rows[0]["EmployeeType"].ToString();
+                    manage_leave.Department = dt.Rows[0]["Department"].ToString();
+                    manage_leave.EarnedOrPrivilegeLeave = Convert.ToInt32(dt.Rows[0]["EarnedOrPrivilegeLeave"].ToString());
+                    manage_leave.EarnedOrPrivilegeLeaveUsed = Convert.ToInt32(dt.Rows[0]["EarnedOrPrivilegeLeaveUsed"].ToString());
+                    manage_leave.CasualLeave = Convert.ToInt32(dt.Rows[0]["CasualLeave"].ToString());
+                    manage_leave.CasualLeaveUsed = Convert.ToInt32(dt.Rows[0]["CasualLeaveUsed"].ToString());
+                    manage_leave.SickOrMedicalLeave = Convert.ToInt32(dt.Rows[0]["SickOrMedicalLeave"].ToString());
+                    manage_leave.SickOrMedicalLeaveUsed = Convert.ToInt32(dt.Rows[0]["SickOrMedicalLeaveUsed"].ToString());
+                    manage_leave.MaternityLeave = Convert.ToInt32(dt.Rows[0]["MaternityLeave"].ToString());
+                    manage_leave.MaternityLeaveUsed = Convert.ToInt32(dt.Rows[0]["MaternityLeaveUsed"].ToString());
+                    manage_leave.QuarantineLeave = Convert.ToInt32(dt.Rows[0]["QuarantineLeave"].ToString());
+                    manage_leave.QuarantineLeaveUsed = Convert.ToInt32(dt.Rows[0]["QuarantineLeaveUsed"].ToString());
+                    manage_leave.SessionStartFrom = Convert.ToDateTime(dt.Rows[0]["SessionStartFrom"].ToString());
+                    manage_leave.SessionEndTo = Convert.ToDateTime(dt.Rows[0]["SessionEndTo"].ToString());
+                    manage_leave.Status = dt.Rows[0]["Status"].ToString();
+
+                }
+            }
+
+
+            return View(manage_leave);
+
+        }
+
+        [HttpPost]
+        public ActionResult insert_leave(macreel_setup.Models.admin.manage_branch manage_branch)
+        {
+            macreel_setup.App_Code.basic_function basic_function = new macreel_setup.App_Code.basic_function();
+
+            Models.common_response Response = basic_function.manage_branch(manage_branch);
+
+
+
+            return RedirectToAction("branch_management");
+        }
+
+        public ActionResult view_leave()
+        {
+            List<macreel_setup.Models.admin.manage_branch> manage_branch = new List<macreel_setup.Models.admin.manage_branch>();
+
+            string sql = "select * from manage_branch order by id";
+
+            DataTable dtr = SqlHelper.ExecuteDataset(CommandType.Text, sql).Tables[0];
+            if (dtr.Rows.Count > 0)
+            {
+                foreach (DataRow dr in dtr.Rows)
+                {
+                    manage_branch.Add(new macreel_setup.Models.admin.manage_branch()
+                    {
+                        BranchName = dr["BranchName"].ToString(),
+                        LandLineNo = dr["LandLineNo"].ToString(),
+                        CityName = dr["CityName"].ToString(),
+                        ContactPerson = dr["ContactPerson"].ToString(),
+                        ContactPersonMobile = dr["ContactPersonMobile"].ToString(),
+                        id = dr["id"].ToString(),
+
+                    });
+                }
+            }
+
+            return View(manage_branch);
+        }
+
+        public ActionResult delet_leave(string id)
+        {
+            string str = "delete from manage_branch where id='" + id + "'";
+
+            SqlHelper.ExecuteNonQuery(CommandType.Text, str);
+
+            return RedirectToAction("view_branch");
+        }
+
+
+        #endregion
+
+
+    }
+}
