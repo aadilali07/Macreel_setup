@@ -128,10 +128,19 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Models\admin\DataServices.cs" />
     <Compile Include="Models\admin\employee_manage.cs" />
     <Compile Include="Models\admin\lead_mangement.cs" />
     <Compile Include="Models\admin\manage_branch.cs" />
     <Compile Include="Models\admin\manage_leave.cs" />
+    <Compile Include="Models\admin\manage_pi.cs" />
+    <Compile Include="Models\admin\manage_po.cs" />
+    <Compile Include="Models\admin\manage_product.cs" />
+    <Compile Include="Models\admin\manage_quotation.cs" />
+    <Compile Include="Models\admin\manage_salebook.cs" />
+    <Compile Include="Models\admin\manage_sequence.cs" />
+    <Compile Include="Models\admin\manage_subadmin.cs" />
+    <Compile Include="Models\admin\manage_vendor.cs" />
     <Compile Include="Models\common_response.cs" />
     <Compile Include="Models\login.cs" />
     <Compile Include="Models\Setup\company_setup.cs" />
@@ -2234,6 +2243,22 @@
     <Content Include="Views\Admin\branch_management.cshtml" />
     <Content Include="Views\Admin\view_branch.cshtml" />
     <Content Include="Views\Admin\manage_leave.cshtml" />
+    <Content Include="Views\Admin\add_pi.cshtml" />
+    <Content Include="Views\Admin\add_po.cshtml" />
+    <Content Include="Views\Admin\add_product.cshtml" />
+    <Content Include="Views\Admin\add_quotation.cshtml" />
+    <Content Include="Views\Admin\add_salebook.cshtml" />
+    <Content Include="Views\Admin\add_sequence.cshtml" />
+    <Content Include="Views\Admin\add_subadmin.cshtml" />
+    <Content Include="Views\Admin\add_vendor.cshtml" />
+    <Content Include="Views\Admin\view_pi.cshtml" />
+    <Content Include="Views\Admin\view_po.cshtml" />
+    <Content Include="Views\Admin\view_product.cshtml" />
+    <Content Include="Views\Admin\view_quotation.cshtml" />
+    <Content Include="Views\Admin\view_salebook.cshtml" />
+    <Content Include="Views\Admin\view_sequence.cshtml" />
+    <Content Include="Views\Admin\view_subadmin.cshtml" />
+    <Content Include="Views\Admin\view_vendor.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -25,13 +25,32 @@
     <link rel="stylesheet" href="~/adminassets/plugins/daterangepicker/daterangepicker.css">
     <!-- summernote -->
     <link rel="stylesheet" href="~/adminassets/plugins/summernote/summernote-bs4.min.css">
+
+
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://jeremyfagis.github.io/dropify/dist/js/dropify.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://jeremyfagis.github.io/dropify/dist/css/dropify.min.css">
+
+
+
+
+
+
+
+
+
     <style>
         .sidebar-dark-primary {
             background-color: #1a3e48;
         }
+
         .card-header {
             background-color: #1a3e48;
         }
+
         .btn-primary {
             background-color: #1a3e48;
             border-color: #1a3e48;
@@ -39,8 +58,9 @@
             width: 200px;
             height: 50px;
         }
-        .card-footer{
-            text-align:center;
+
+        .card-footer {
+            text-align: center;
         }
     </style>
 </head>
@@ -350,6 +370,196 @@
                         </li>
 
 
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    sub admin manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_subadmin" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_subadmin</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_subadmin" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_subadmin</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    sequence manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_sequence" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_sequence</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_sequence" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_sequence</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Product Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_product" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_product</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_product" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_product</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Vendor Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_vendor" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_vendor</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_vendor" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_vendor</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Sale Book Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_salebook" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_salebook</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_salebook" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_salebook</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    PI Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_pi" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_pi</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_pi" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_pi</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    PO Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_po" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_po</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_po" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_po</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li class="nav-item">
+                            <a href="#" class="nav-link">
+                                <i class="nav-icon fas fa-edit"></i>
+                                <p>
+                                    Quotation Manager
+                                    <i class="fas fa-angle-left right"></i>
+                                </p>
+                            </a>
+                            <ul class="nav nav-treeview">
+                                <li class="nav-item">
+                                    <a href="/admin/add_quotation" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>add_quotation</p>
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a href="/admin/view_quotation" class="nav-link">
+                                        <i class="far fa-circle nav-icon"></i>
+                                        <p>view_quotation</p>
+                                    </a>
+                                </li>
+                            </ul>
+                        </li>
+
+
                     </ul>
                 </nav>
                 <!-- /.sidebar-menu -->
@@ -359,6 +569,17 @@
 
         <!-- Content Wrapper. Contains page content -->
         @RenderBody()
+
+
+        <script>
+            $('.dropify').dropify();
+
+        </script>
+
+        <!-- datatable js cdn link -->
+
+        
+
         <!-- /.content-wrapper -->
         <footer class="main-footer">
             <strong>Copyright &copy; 2014-2023 <a href="#">Macreel Info.io</a>.</strong>
@@ -409,6 +630,10 @@
     <script src="~/adminassets/js/demo.js"></script>
     <!-- AdminLTE dashboard demo (This is only for demo purposes) -->
     <script src="~/adminassets/js/pages/dashboard.js"></script>
+
+
+
+
 </body>
 </html>
 
